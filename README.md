@@ -12,8 +12,13 @@ git add .
 git commit -m "commitmessage"  
 git push origin feature/RANSAC  
 ...  
-branch name should be feature/RANSAC, feature/Projection, feature/main, etc ...  
-main에 merge는 동시에 하면 꼬이니깐 한 명이 고정으로  
+branch name should be feature/RANSAC, feature/Projection, feature/main, etc ...   
+
+[Rule]  
+all files should be located in ./core without main.py  
+all images, data files should be located in ./core/data  
+all results should be located in ./core/results  
+Do not merge into main branch without consultation  
 
 # Timetable
 - 04/30 : 1st Discussion  
