@@ -51,7 +51,7 @@ def plot_plane(dom_plane, X3D, K):
     print(b)
     k = -dom_plane[3]/(-dom_plane[0]*a-dom_plane[1]*b+dom_plane[2])
     print(k)
-    any2p = np.array([[-k*a,-k*b],[-k*a+5,-k*b]]) # (-k*a,-k*b,z) in the dom_plane is the point that projects to image point (0,0) 
+    any2p = np.array([[-k*a,-k*b],[-k*a,-k*b-5]]) # (-k*a,-k*b,z) in the dom_plane is the point that projects to image point (0,0) 
     z = -(dom_plane[0]*any2p[:,0]+dom_plane[1]*any2p[:,1]+dom_plane[3])/dom_plane[2]
     print(z)
     any2p = np.concatenate((any2p, np.expand_dims(z,1)),1)

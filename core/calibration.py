@@ -31,9 +31,9 @@ def calibration(imgPath):
             imgpoints.append(corners2)
             img = cv.drawChessboardCorners(img, chessboard, corners2, ret)
         # if you do not want to check image, erase under 3 lines
-        cv.imshow('img',img)
-        cv.waitKey(0)
-    cv.destroyAllWindows()
+    #     cv.imshow('img',img)
+    #     cv.waitKey(0)
+    # cv.destroyAllWindows()
     # ret, K, distortion, rotation, translation
     ret, K, dist, R, t = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     h, w = img.shape[:2] # 480, 640
