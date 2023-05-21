@@ -2,7 +2,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.linalg import svd
-from core.get3D import get3D
 
 def load_images(path1="./data/desk1.png", path2="./data/desk2.png") :
     """_summary_
@@ -105,7 +104,7 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     
     return X1, X2
 
-def get3Dfrom2D(X1, X2):
+def get3Dfrom2D(X1, X2, K):
     """_summary_
     Find 3D coordinates on second image from matching points
     B = (# of mathced points)
@@ -117,6 +116,11 @@ def get3Dfrom2D(X1, X2):
     """
     print("map_initialization.py : Calculating an initial map...")
     
+    c = np.array([K[0][2],K[1][2]])
+    f = np.array([K[0][0],K[1][1]])
+    X1_norImg = (X1-c)/f
+    X2_norImg = (X2-c)/f
+
     B = X1.shape[0]
     R  = np.eye(3)
     t = np.array([[10], [0], [0]])
@@ -127,12 +131,12 @@ def get3Dfrom2D(X1, X2):
     #fill first 2 rows
     A[:, 0, 0] = 1
     A[:, 1, 1] = 1
-    A[:, :2, 2] = -X2
+    A[:, :2, 2] = -X2_norImg
     
     #fill last 2 rows
     p2 = np.tile(P[2], (B, 2, 1))
     p = np.tile(P[:2], (B, 1, 1))
-    A[:, 2:, :] = p2*X1[:,:, None]-p
+    A[:, 2:, :] = p2*X1_norImg[:,:, None]-p
     
     U, S, VT = svd(A)
     
@@ -170,7 +174,7 @@ def map_init(path1, path2, NNDR_RATIO, K) :
     img1, img2 = load_images(path1, path2)
     X1, X2 = get_matching(img1, img2, NNDR_RATIO)
 
-    X3D = get3D(X1, X2, K)
+    X3D = get3Dfrom2D(X1, X2, K)
     
     return img2, X1, X2, X3D
     
