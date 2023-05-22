@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.linalg import svd
 
-
 def load_images(path1="./data/desk1.png", path2="./data/desk2.png") :
     """_summary_
 
@@ -16,7 +15,9 @@ def load_images(path1="./data/desk1.png", path2="./data/desk2.png") :
     """
     print("map_initialization.py : Load images in", path1, "and", path2, "...")
     img1 = cv.imread(path1)
+    img1 = cv.cvtColor(img1, cv.COLOR_BGR2RGB)
     img2 = cv.imread(path2)
+    img2 = cv.cvtColor(img2, cv.COLOR_BGR2RGB)
     
     return img1, img2
 
@@ -103,7 +104,7 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     
     return X1, X2
 
-def get3Dfrom2D(X1, X2):
+def get3Dfrom2D(X1, X2, K):
     """_summary_
     Find 3D coordinates on second image from matching points
     B = (# of mathced points)
@@ -115,6 +116,11 @@ def get3Dfrom2D(X1, X2):
     """
     print("map_initialization.py : Calculating an initial map...")
     
+    c = np.array([K[0][2],K[1][2]])
+    f = np.array([K[0][0],K[1][1]])
+    X1_norImg = (X1-c)/f
+    X2_norImg = (X2-c)/f
+
     B = X1.shape[0]
     R  = np.eye(3)
     t = np.array([[10], [0], [0]])
@@ -125,12 +131,12 @@ def get3Dfrom2D(X1, X2):
     #fill first 2 rows
     A[:, 0, 0] = 1
     A[:, 1, 1] = 1
-    A[:, :2, 2] = -X2
+    A[:, :2, 2] = -X2_norImg
     
     #fill last 2 rows
     p2 = np.tile(P[2], (B, 2, 1))
     p = np.tile(P[:2], (B, 1, 1))
-    A[:, 2:, :] = p2*X1[:,:, None]-p
+    A[:, 2:, :] = p2*X1_norImg[:,:, None]-p
     
     U, S, VT = svd(A)
     
@@ -164,101 +170,11 @@ def get3Dfrom2D(X1, X2):
     
     return X3D
 
-def mainPlane(X3D):
-    """_summary_
-    Find 3D dominant plane that corresponds to most 3D points by RANSAC
-    B = (# of mathced points)
-    Args:
-        X3D (np.ndarray): B * 3, 3D coordinates relative to second camera
-    Returns:
-        dom_plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
-    """
-    print("map_initialization.py : Finding the dominat plane...")
-
-    # manually select the iteration and threshold
-    iteration = 50
-    threshold = 0.001
-    best_inlier = 0
-    for ii in range(iteration):
-        inlier = 0
-        a = np.random.choice(range(np.shape(X3D)[0]),3,replace=False)
-        u = X3D[a[0]]-X3D[a[1]]
-        v = X3D[a[0]]-X3D[a[2]]
-        normal = np.cross(u,v)
-        normal = normal/np.linalg.norm(normal)
-        d = -np.dot(normal,X3D[a[0]])
-        for i in range(len(X3D)):
-            distance = np.abs(np.dot(normal,X3D[i]+d))
-            if distance < threshold:
-                inlier += 1
-        if inlier > best_inlier:
-            print("dominant plane updated")
-            best_inlier = inlier
-            dom_plane = np.append(normal,d)  # [a,b,c,d] ; ax+by+cz+d = 0
-    print("map_initialization.py : # of inlier points in dominant plane = ", best_inlier)
-
-    ### Drawing XYZ plot of X3D
-    ### To see the results, uncomment the following code
-
-    xx, yy = np.meshgrid(range(50),range(50))
-    zz = -(dom_plane[0]*xx+dom_plane[1]*yy+dom_plane[3])/dom_plane[2]
-    
-    # test 3D cuboid
-    x = np.array([10,20])
-    x = np.array([x,x+[5,0],x+[5,5],x+[0,5]])
-    z = -(dom_plane[0]*x[:,0]+dom_plane[1]*x[:,1]+dom_plane[3])/dom_plane[2]
-    x = np.concatenate((x, np.expand_dims(z,1)),1)
-    x = np.concatenate((x,x+0.005*dom_plane[0:3]),0)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.set_title("XYZ coordinates relative to second camera")
-    ax.set_xlabel("x")
-    ax.set_xlim(0, 50)
-    ax.set_ylabel("y")
-    ax.set_ylim(0, 40)
-    ax.set_zlabel("z")
-    ax.set_zlim(0, 0.02)
-    ax.plot_surface(xx,yy,zz,alpha=0.2)
-    ax.scatter(x[:,0],x[:,1],x[:,2],marker='.', s=10)
-    ax.scatter(X3D[:,0], X3D[:,1], X3D[:,2], marker='o', s=15)
-    plt.show()
-
-    return dom_plane
-
-def obj3Dto2D(keyImg, plane, X3D):
-    # plot cuboid
-    x = np.array([10,20])
-    x = np.array([x,x+[5,0],x+[5,5],x+[0,5]])
-    z = -(plane[0]*x[:,0]+plane[1]*x[:,1]+plane[3])/plane[2]
-    x = np.concatenate((x, np.expand_dims(z,1)),1)    
-    x = np.concatenate((x,x+0.005*plane[0:3]),0)
-
-    u = x[:,0]/x[:,2]
-    v = x[:,1]/x[:,2]
-    plt.imshow(keyImg)
-    plt.scatter(u, v,s=10)
-    
-    # plot feature
-    X3D = np.matrix(X3D)
-    X3D = X3D/X3D[:,2]
-    a = np.array(X3D[:,0]).flatten()
-    b = np.array(X3D[:,1]).flatten()
-    plt.scatter(a,b,s=10)
-    plt.axis("off")
-    plt.show()
-
-    return img
-
-def map_init(path1, path2, NNDR_RATIO) :
+def map_init(path1, path2, NNDR_RATIO, K) :
     img1, img2 = load_images(path1, path2)
-
     X1, X2 = get_matching(img1, img2, NNDR_RATIO)
 
-    X3D = get3Dfrom2D(X1, X2)
+    X3D = get3Dfrom2D(X1, X2, K)
     
-    dom_plane = mainPlane(X3D)
-
-    obj3Dto2D(img2,dom_plane, X3D)
-
+    return img2, X1, X2, X3D
     
