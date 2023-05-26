@@ -28,17 +28,17 @@ if __name__ == "__main__":
 
 
     ### Initialize a Map, which is a set of 3D coordinates of feature points 
-    img2, X1, X2, X3D = map_init(args.img1, args.img2, args.NNDR_RATIO, K)
+    img1, X1, X2, X3D = map_init(args.img1, args.img2, args.NNDR_RATIO, K)
 
     dom_plane = planeRANSAC(X3D, 100, 0.05) # X3D, iteration, threshold
 
     # Plot the plane,
     # planeGrid3D = plot_plane(dom_plane, X3D, K)
-    # plot3Dto2D(img2, K, X3D, planeGrid3D, 'grid')
+    # plot3Dto2D(img1, K, X3D, planeGrid3D, 'grid')
 
     # Click point & Plot cube
-    obj3D = makeCube(img2, dom_plane, K, X3D)
-    plot3Dto2D(img2, K, X3D, obj3D, 'cube')
+    obj3D = makeCube(img1, dom_plane, K, X3D)
+    plot3Dto2D(img1, K, X3D, obj3D, 'cube')
 
     ### TBC ...
     
