@@ -13,7 +13,6 @@ def SE3(X1,X2,K):
 
 def searchRmatch(X1, E):
     ##
-        
 
 # Compute the epipolar lines in the two views
 lines1 = cv2.computeCorrespondEpilines(points2.reshape(-1, 1, 2), 2, E).reshape(-1, 3)

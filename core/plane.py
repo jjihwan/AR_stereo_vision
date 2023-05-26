@@ -53,7 +53,7 @@ def plot_plane(dom_plane, X3D, K):
     print("plane.py : 3D Plot the dominat plane...")
 
     
-    meshx_plane, meshy_plane = np.meshgrid(range(-30,20),range(-20,20))
+    meshx_plane, meshy_plane = np.meshgrid(range(-50,50),range(-50,20))
     meshz_plane = -(dom_plane[0]*meshx_plane+dom_plane[1]*meshy_plane+dom_plane[3])/dom_plane[2]
     
     # test 3D cuboid
@@ -68,68 +68,39 @@ def plot_plane(dom_plane, X3D, K):
     v_grid = np.cross(u_grid,dom_plane[0:3])
     v_grid = v_grid/np.linalg.norm(v_grid)
     planeGrid3D = [init2p[0]]
-    for hi in range(13):
-        for wi in range(18):
+    h = 13
+    w = 18
+    for hi in range(h): # 13
+        for wi in range(w): # 18
             if wi==0 and hi==0:
                 continue # init2p[0] is already added to palne3Dgrid
             gridij = [init2p[0]+u_grid*5*hi+v_grid*5*wi]
             planeGrid3D = np.concatenate((planeGrid3D,gridij))
-
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.set_title("XYZ coordinates relative to second camera")
     ax.set_xlabel("x")
-    ax.set_xlim(-20, 20)
+    ax.set_xlim(-40, 40)
     ax.set_ylabel("y")
-    ax.set_ylim(-20, 20)
+    ax.set_ylim(-40, 20)
     ax.set_zlabel("z")
     ax.set_zlim(0, 50)
     ax.plot_surface(meshx_plane,meshy_plane,meshz_plane,alpha=0.2)
-    ax.scatter(planeGrid3D[:,0],planeGrid3D[:,1],planeGrid3D[:,2],marker='.', s=10)
+    # ax.scatter(planeGrid3D[:,0],planeGrid3D[:,1],planeGrid3D[:,2],marker='.', s=10)
+    for i in range(h):
+        ax.plot([planeGrid3D[w*i][0],planeGrid3D[w*(i+1)-1][0]],[planeGrid3D[w*i][1],planeGrid3D[w*(i+1)-1][1]],zs=[planeGrid3D[w*i][2],planeGrid3D[w*(i+1)-1][2]],color='0.5', linewidth=1)
+    for j in range(w):
+        ax.plot([planeGrid3D[j][0],planeGrid3D[(h-1)*w+j][0]],[planeGrid3D[j][1],planeGrid3D[(h-1)*w+j][1]],zs=[planeGrid3D[j][2],planeGrid3D[(h-1)*w+j][2]],color='0.5', linewidth=1)
     ax.scatter(X3D[:,0], X3D[:,1], X3D[:,2], marker='o', s=15)
     plt.show()
+
+    planeGrid3D = planeGrid3D[:,np.newaxis]
+    planeGrid3D = np.reshape(planeGrid3D, (h,w,3))
 
     return planeGrid3D
 
 
-def plane3Dto2D(keyImg, K, X3D, planeGrid3D):
-    """_summary_
-    plot 3D plane with 3D points in world coordinate
-    B = (# of mathced points)
-    n = (# of grid points manually selected with wi and hi)
-    Args:
-        keyImg: image that represent the world coordinate
-        K (np.ndarray): 3 * 3, intrinsic matrix of camera
-        X3D (np.ndarray): B * 3, 3D coordinates relative to second camera
-        planeGrid3D (np.ndarray): n * 3, 3D coordinates of vertically grid points in dominant plane
-    Returns:
-        None
-    """
-    print("plane.py : Plot the dominant plane grid in 2D image ...")
-    
-    c = np.array([K[0][2],K[1][2]])
-    f = np.array([K[0][0],K[1][1]])
-    
-    # plot dominant plane grid
-    planeGrid3D = np.matrix(planeGrid3D)
-    planeGrid_Img = planeGrid3D/planeGrid3D[:,2]
-    planeGrid_norImgxy = np.array(planeGrid_Img[:,0:2])
-    planeGrid_Img = planeGrid_norImgxy*f+c
-    
-    plt.imshow(keyImg)
-    plt.scatter(planeGrid_Img[:,0], planeGrid_Img[:,1],s=10)
-
-    # plot feature
-    X3D = np.matrix(X3D)
-    X3D = X3D/X3D[:,2]    
-    XnorImg = np.array(X3D[:,0:2])
-    XImg = XnorImg*f+c
-
-    plt.scatter(XImg[:,0],XImg[:,1],s=10)
-    plt.axis("off")
-    plt.show()
-
 # def detect_plane(X3D, keyimg, K):
 #     dom_plane = planeRANSAC(X3D, 100, 0.05) # X3D, iteration, threshold
 #     planeGrid3D = plot_plane(dom_plane, X3D, K)
-#     plane3Dto2D(keyimg, K, X3D, planeGrid3D)
+#     plot3Dto2D(keyimg, K, X3D, planeGrid3D)
