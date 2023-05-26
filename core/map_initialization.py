@@ -131,12 +131,12 @@ def get3Dfrom2D(X1, X2, K):
     #fill first 2 rows
     A[:, 0, 0] = 1
     A[:, 1, 1] = 1
-    A[:, :2, 2] = -X2_norImg
+    A[:, :2, 2] = -X1_norImg
     
     #fill last 2 rows
     p2 = np.tile(P[2], (B, 2, 1))
     p = np.tile(P[:2], (B, 1, 1))
-    A[:, 2:, :] = p2*X1_norImg[:,:, None]-p
+    A[:, 2:, :] = p2*X2_norImg[:,:, None]-p
     
     U, S, VT = svd(A)
     
@@ -176,5 +176,5 @@ def map_init(path1, path2, NNDR_RATIO, K) :
 
     X3D = get3Dfrom2D(X1, X2, K)
     
-    return img2, X1, X2, X3D
+    return img1, X1, X2, X3D
     

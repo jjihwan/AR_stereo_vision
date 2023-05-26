@@ -24,11 +24,11 @@ if __name__ == "__main__":
     [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
 
     ### Initialize a Map, which is a set of 3D coordinates of feature points 
-    img2, X1, X2, X3D = map_init(args.img1, args.img2, args.NNDR_RATIO, K)
+    img1, X1, X2, X3D = map_init(args.img1, args.img2, args.NNDR_RATIO, K)
 
     dom_plane = planeRANSAC(X3D, 100, 0.05) # X3D, iteration, threshold
     planeGrid3D = plot_plane(dom_plane, X3D, K)
-    plane3Dto2D(img2, K, X3D, planeGrid3D)
+    plane3Dto2D(img1, K, X3D, planeGrid3D)
 
     ### TBC ...
     
