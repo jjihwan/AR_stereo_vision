@@ -123,7 +123,7 @@ def get3Dfrom2D(X1, X2, K):
 
     B = X1.shape[0]
     R  = np.eye(3)
-    t = np.array([[10], [0], [0]])
+    t = np.array([[-10], [0], [0]])
     P = np.concatenate((R, t), axis=1)
     
     A = np.zeros((B, 4, 4))
