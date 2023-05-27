@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import inv
-from map_initialization import map_init
+from map_initialization import map_init, get_matching, load_images
 from liegroups.numpy import SE3
 
 ######################################################################
@@ -21,7 +21,9 @@ def trackPose(X_2_cur, X_3_prev, X_3_map, K):
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
         pose = motion @ pose
+        print(delta)
     print(pose)
+
     return pose
 
 
@@ -29,8 +31,12 @@ def get_inputs():
     K = np.array([[3.10593801e+03, 0.00000000e+00, 1.53552466e+03],
                   [0.00000000e+00, 3.08841292e+03, 2.03002207e+03],
                   [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
-    _, X_2_prev, X_2_cur, X_3_map = map_init(
-        "./data/desk1.jpeg", "./data/desk2.jpeg", 0.7, K)
+    
+    _, _, _, X_3_map = map_init(
+        "./data/bear1.jpeg", "./data/bear2.jpeg", 0.7, K)
+    img1, img2 = load_images("./data/bear2.jpeg", "./data/bear3.jpeg")
+    X_2_prev, X_2_cur = get_matching(img1, img2, NNDR_RATIO=0.7)
+
 
     X_3_prev = X_3_map
 
@@ -111,7 +117,7 @@ def get_Jacobian(X_3_cur, K):
     J_nm = get_normal_motion_Jacobian(X_3_cur)  # (n,2,6)
 
     J = np.matmul(J_in, J_nm)
-
+    
     J = J.reshape(-1, 6)
 
     return J
@@ -123,7 +129,7 @@ def get_normal_motion_Jacobian(X_3_cur):
     n = X_3_cur.shape[0]
     A = np.zeros((n, 2, 6))
     B = np.zeros((n, 1, 6))
-
+    
     A[:, 0, 0] = 1
     A[:, 1, 1] = 1
     A[:, 0, 4] = X_3_cur[:, 2]  # z_i

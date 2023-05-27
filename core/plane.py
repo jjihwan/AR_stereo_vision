@@ -68,9 +68,9 @@ def plot_plane(dom_plane, X3D, K):
     v_grid = np.cross(u_grid,dom_plane[0:3])
     v_grid = v_grid/np.linalg.norm(v_grid)
     planeGrid3D = [init2p[0]]
-    h = 13
+    h = 14
     w = 18
-    for hi in range(h): # 13
+    for hi in range(h): # 14
         for wi in range(w): # 18
             if wi==0 and hi==0:
                 continue # init2p[0] is already added to palne3Dgrid
@@ -84,7 +84,7 @@ def plot_plane(dom_plane, X3D, K):
     ax.set_ylabel("y")
     ax.set_ylim(-40, 20)
     ax.set_zlabel("z")
-    ax.set_zlim(0, 50)
+    ax.set_zlim(0, 100)
     ax.plot_surface(meshx_plane,meshy_plane,meshz_plane,alpha=0.2)
     # ax.scatter(planeGrid3D[:,0],planeGrid3D[:,1],planeGrid3D[:,2],marker='.', s=10)
     for i in range(h):

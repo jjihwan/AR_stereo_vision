@@ -2,35 +2,24 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-oldx = oldy = -1 # 좌표 기본값 설정
-
 def on_mouse(event, x, y, flags, data):
-    # event는 마우스 동작 상수값, 클릭, 이동 등등
-    # x, y는 내가 띄운 창을 기준으로 좌측 상단점이 0,0이 됌
-    # flags는 마우스 이벤트가 발생할 때 키보드 또는 마우스 상태를 의미, Shif+마우스 등 설정가능
-    # param은 영상이룻도 있도 전달하고 싶은 데이타, 안쓰더라도 넣어줘야함
-    if event == cv.EVENT_LBUTTONDOWN: # 왼쪽이 눌러지면 실행
+    if event == cv.EVENT_LBUTTONDOWN:
         data.append([x,y])
-        print('EVENT_LBUTTONDOWN: %d, %d' % (x, y)) # 좌표 출력
+        print('EVENT_LBUTTONDOWN: %d, %d' % (x, y))
 
 def clickImg(img):
     data = []
-    # 윈도우 창
     cv.namedWindow('image')
 
-    # 마우스 입력, namedWIndow or imshow가 실행되어 창이 떠있는 상태에서만 사용가능
-    # 마우스 이벤트가 발생하면 on_mouse 함수 실행
+    # if event occurs, on_mouse function runs
     cv.imshow('image', img)
     cv.setMouseCallback('image', on_mouse, data)
 
     print(data)
-    # 영상 출력
     cv.waitKey()
 
     cv.destroyAllWindows()
 
-    # 유저가 마우스로 찍은 점을 float로 바꿔야 함.
     clicked2D = np.array(data, dtype=float)
     return clicked2D
 
