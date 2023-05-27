@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import inv
+from numpy.linalg import inv, norm
 from map_initialization import map_init
 from liegroups.numpy import SE3
 
@@ -11,17 +11,19 @@ from liegroups.numpy import SE3
 
 
 def trackPose(X_2_cur, X_3_prev, X_3_map, K):
-    pose, mu = get_initial_pose()
-    for s in range(10):
+    init_pose, mu = get_initial_pose()
+    pose = init_pose
+    for s in range(20):
         X_3_cur = get_camera_coordinate(pose, X_3_map)
         J = get_Jacobian(X_3_cur, K)
 
-        delta = - (inv(J.T@J)@J.T @
-                   compute_error(X_3_cur, X_2_cur, K)).squeeze()
+        error = compute_error(X_3_cur, X_2_cur, K)
+        delta = - (inv(J.T@J)@J.T @ error).squeeze()
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
-        pose = motion @ pose
-    print(pose)
+        pose = motion @ init_pose
+        print(norm(error))
+        print(pose)
     return pose
 
 
@@ -60,7 +62,7 @@ def get_nonhomogeneous(X):
 def get_initial_pose():
     mu = np.zeros(6)
     pose = np.eye(4)
-    pose[0, 3] = -10
+    pose[0, 3] = -30
     return pose, mu
 
 
