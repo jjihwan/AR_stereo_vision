@@ -13,7 +13,7 @@ from liegroups.numpy import SE3
 def trackPose(X_2_cur, X_3_prev, X_3_map, K):
     init_pose, mu = get_initial_pose()
     pose = init_pose
-    for s in range(20):
+    for s in range(10):
         X_3_cur = get_camera_coordinate(pose, X_3_map)
         J = get_Jacobian(X_3_cur, K)
 
