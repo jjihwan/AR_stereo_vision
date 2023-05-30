@@ -34,10 +34,10 @@ def plot3Dto2D(keyImg, K, X3D, obj3D, category):
         
         plt.imshow(keyImg)
         # plt.scatter(objImg[:,0], objImg[:,1],s=10)
-        # for i in range(h):
-        #     plt.plot([objImg[w*i][0],objImg[w*(i+1)-1][0]],[objImg[w*i][1],objImg[w*(i+1)-1][1]],color='0.5', linewidth=1)
-        # for j in range(w):
-        #     plt.plot([objImg[j][0],objImg[(h-1)*w+j][0]],[objImg[j][1],objImg[(h-1)*w+j][1]],color='0.5', linewidth=1)
+        for i in range(h):
+            plt.plot([objImg[w*i][0],objImg[w*(i+1)-1][0]],[objImg[w*i][1],objImg[w*(i+1)-1][1]],color='0.5', linewidth=1)
+        for j in range(w):
+            plt.plot([objImg[j][0],objImg[(h-1)*w+j][0]],[objImg[j][1],objImg[(h-1)*w+j][1]],color='0.5', linewidth=1)
     if category == 'cube':
         obj3D = np.matrix(obj3D)
         objImg = obj3D/obj3D[:,2]

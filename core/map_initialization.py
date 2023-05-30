@@ -40,7 +40,7 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     X = img1.shape[1]
     
     # ORB Feature Detection
-    detector = cv.ORB_create(500)
+    detector = cv.ORB_create()
     kp1, des1 = detector.detectAndCompute(img1, None)
     kp2, des2 = detector.detectAndCompute(img2, None)
     
@@ -55,10 +55,9 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     good_kp2s = []
 
     for m in matches :
-        
         if m[0].distance < NNDR_RATIO * m[1].distance :
             # Find on right window
-            if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]: 
+            if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]:
                 if abs(kp1[m[0].queryIdx].pt[1] - kp2[m[0].trainIdx].pt[1]) < X/MAX_TRANSLATION_RATIO :
                     good_mathches.append(m[0])
                     

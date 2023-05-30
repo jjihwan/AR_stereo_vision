@@ -11,8 +11,8 @@ from core.plot import plot3Dto2D
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--img1", "-i1",  type=str, default="./core/data/bear2.jpeg", help="Directory of first image for map initialization")
-    parser.add_argument("--img2", "-i2",  type=str, default="./core/data/bear3.jpeg", help="Directory of second image for map initialization") 
+    parser.add_argument("--img1", "-i1",  type=str, default="./core/data/all1.jpeg", help="Directory of first image for map initialization")
+    parser.add_argument("--img2", "-i2",  type=str, default="./core/data/all2.jpeg", help="Directory of second image for map initialization") 
     parser.add_argument("--NNDR_RATIO", "-nndr",  type=float, default=0.7, help="Threshold for Nearest Neighbor Distance Ratio")
     args = parser.parse_args()
     
