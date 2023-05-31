@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from core.calibration import calibration
 from core.map_initialization import map_init_from_frames
 from core.plane import get_dominant_plane
+from core.projection import plot2D
 # import calibration
 # import plane
 # import tracking
@@ -17,11 +18,12 @@ def work(video, args):
     # plt.show()
     if args.calibration:
         K, _, _, _ = calibration(
-            './core/data/calibration/*.jpeg', 6, 8)  # (image path, gridx, gridy)
+            './core/data/calibration/video_mode/*.jpeg', 6, 10)  # (image path, gridx, gridy)
+        print(K)
     else:
         # New extrinsic parmameters from 1920*1080 video camera
-        K = np.array([[3.10593801e+03, 0.00000000e+00, 960],
-                      [0.00000000e+00, 3.08841292e+03, 540],
+        K = np.array([[1.69428499e+03, 0.00000000e+00, 9.62922539e+02],
+                      [0.00000000e+00, 1.70678063e+03, 5.20552346e+02],
                       [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
         # K = np.array([[3.10593801e+03, 0.00000000e+00, 1.53552466e+03],
         #               [0.00000000e+00, 3.08841292e+03, 2.03002207e+03],

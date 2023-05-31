@@ -63,19 +63,11 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     good_kp1s = []
     good_kp2s = []
 
-<<<<<<< HEAD
-    for m in matches :
-        if m[0].distance < NNDR_RATIO * m[1].distance :
-            # Find on right window
-            if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]:
-                if abs(kp1[m[0].queryIdx].pt[1] - kp2[m[0].trainIdx].pt[1]) < X/MAX_TRANSLATION_RATIO :
-=======
     for m in matches:
         if m[0].distance < NNDR_RATIO * m[1].distance:
             # Find on right window
             if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]:
                 if abs(kp1[m[0].queryIdx].pt[1] - kp2[m[0].trainIdx].pt[1]) < X/MAX_TRANSLATION_RATIO:
->>>>>>> d99a1324a6e93970d1932cae412a49c514f72f36
                     good_mathches.append(m[0])
 
                     x1 = np.array(kp1[m[0].queryIdx].pt)
