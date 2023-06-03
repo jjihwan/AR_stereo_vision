@@ -55,25 +55,28 @@ def make3Dgrid(plane, X3D, img, K):
     """
     print("plane.py : 3D Plot the dominat plane...")
 
-    (imgh,imgw) = img.shape[0:2]
+    (imgh, imgw) = img.shape[0:2]
 
-    c = np.array([K[0][2],K[1][2]])
-    f = np.array([K[0][0],K[1][1]])
+    c = np.array([K[0][2], K[1][2]])
+    f = np.array([K[0][0], K[1][1]])
 
     # image (0,0) and (h,w) to normal image
-    vertex_norImg = np.array([[-c[0]/f[0],-c[1]/f[1]],
-                              [(imgw-c[0])/f[0],(imgh-c[1])/f[1]]])
+    vertex_norImg = np.array([[-c[0]/f[0], -c[1]/f[1]],
+                              [(imgw-c[0])/f[0], (imgh-c[1])/f[1]]])
     # constant multiple to project to plane
-    k = -plane[3]/(plane[0]*vertex_norImg[:,0] + plane[1]*vertex_norImg[:,1] + plane[2])
+    k = -plane[3]/(plane[0]*vertex_norImg[:, 0] + plane[1]
+                   * vertex_norImg[:, 1] + plane[2])
 
     # (k*a,k*b,z) in the plane is the point that projects to image vertex point (0,0) and (h,w)
     vertex3Dxy = (k*vertex_norImg.T).T
-    vertex3Dz = -(plane[0]*vertex3Dxy[:,0]+plane[1] * vertex3Dxy[:,1]+plane[3])/plane[2]
+    vertex3Dz = -(plane[0]*vertex3Dxy[:, 0]+plane[1]
+                  * vertex3Dxy[:, 1]+plane[3])/plane[2]
     vertex3D = np.concatenate((vertex3Dxy, np.expand_dims(vertex3Dz, 1)), 1)
 
-    init3Dxy = np.array([k[0]*vertex_norImg[0,:],k[0]*vertex_norImg[0,:]-[0,5]])
-    init3Dz = -(plane[0]*init3Dxy[:,0]+plane[1]
-                * init3Dxy[:,1]+plane[3])/plane[2]
+    init3Dxy = np.array([k[0]*vertex_norImg[0, :], k[0]
+                        * vertex_norImg[0, :]-[0, 5]])
+    init3Dz = -(plane[0]*init3Dxy[:, 0]+plane[1]
+                * init3Dxy[:, 1]+plane[3])/plane[2]
     init3D = np.concatenate((init3Dxy, np.expand_dims(init3Dz, 1)), 1)
 
     u_grid = init3D[0]-init3D[1]
@@ -82,22 +85,22 @@ def make3Dgrid(plane, X3D, img, K):
     v_grid = v_grid/np.linalg.norm(v_grid)
     grid3D = [init3D[0]]
 
-    diagvec = vertex3D[1,:]-vertex3D[0,:]
-    diag_proj_ugrid = np.dot(diagvec,u_grid)*u_grid
-    diag_proj_vgrid = np.dot(diagvec,v_grid)*v_grid
+    diagvec = vertex3D[1, :]-vertex3D[0, :]
+    diag_proj_ugrid = np.dot(diagvec, u_grid)*u_grid
+    diag_proj_vgrid = np.dot(diagvec, v_grid)*v_grid
 
     h = int(np.linalg.norm(diag_proj_ugrid)/5)+2
     w = int(np.linalg.norm(diag_proj_vgrid)/5)+2
-    
+
     for hi in range(h):
         for wi in range(w):
-            if wi==0 and hi==0:
-                continue # init3D[0] is already added to palne3Dgrid
+            if wi == 0 and hi == 0:
+                continue  # init3D[0] is already added to palne3Dgrid
             gridij = [init3D[0]+u_grid*5*hi+v_grid*5*wi]
             grid3D = np.concatenate((grid3D, gridij))
 
-    grid3D = grid3D[:,np.newaxis]
-    grid3D = np.reshape(grid3D, (h,w,3))
+    grid3D = grid3D[:, np.newaxis]
+    grid3D = np.reshape(grid3D, (h, w, 3))
 
     return grid3D
 
@@ -114,11 +117,11 @@ def plot3Dplane(plane, grid3D, X3D):
     Returns:
         grid3D (np.ndarray): h * w * 3, 3D coordinates of vertically grid points in dominant plane
     """
-    print("plane.py : 3D Plot the dominat plane...")    
+    print("plane.py : 3D Plot the dominat plane...")
 
     h = grid3D.shape[0]
     w = grid3D.shape[1]
-    grid3D = np.reshape(grid3D, (h*w,3))
+    grid3D = np.reshape(grid3D, (h*w, 3))
 
     meshx_plane, meshy_plane = np.meshgrid(range(-30, 20), range(-20, 20))
     meshz_plane = -(plane[0]*meshx_plane+plane[1]
@@ -133,27 +136,30 @@ def plot3Dplane(plane, grid3D, X3D):
     ax.set_ylim(-40, 20)
     ax.set_zlabel("z")
     ax.set_zlim(0, 100)
-    ax.plot_surface(meshx_plane,meshy_plane,meshz_plane,alpha=0.2)
+    ax.plot_surface(meshx_plane, meshy_plane, meshz_plane, alpha=0.2)
     # ax.scatter(grid3D[:,0],grid3D[:,1],grid3D[:,2],marker='.', s=10)
 
     for i in range(h):
-        ax.plot([grid3D[w*i][0],grid3D[w*(i+1)-1][0]],[grid3D[w*i][1],grid3D[w*(i+1)-1][1]],zs=[grid3D[w*i][2],grid3D[w*(i+1)-1][2]],color='0.5', linewidth=1)
+        ax.plot([grid3D[w*i][0], grid3D[w*(i+1)-1][0]], [grid3D[w*i][1], grid3D[w*(i+1)-1]
+                [1]], zs=[grid3D[w*i][2], grid3D[w*(i+1)-1][2]], color='0.5', linewidth=1)
     for j in range(w):
-        ax.plot([grid3D[j][0],grid3D[(h-1)*w+j][0]],[grid3D[j][1],grid3D[(h-1)*w+j][1]],zs=[grid3D[j][2],grid3D[(h-1)*w+j][2]],color='0.5', linewidth=1)
-    ax.scatter(X3D[:,0], X3D[:,1], X3D[:,2], marker='o', s=15)
+        ax.plot([grid3D[j][0], grid3D[(h-1)*w+j][0]], [grid3D[j][1], grid3D[(h-1)*w+j]
+                [1]], zs=[grid3D[j][2], grid3D[(h-1)*w+j][2]], color='0.5', linewidth=1)
+    ax.scatter(X3D[:, 0], X3D[:, 1], X3D[:, 2], marker='o', s=15)
     plt.show()
 
 
 def obj3Dto2D(obj3D, K):
-    c = np.array([K[0][2],K[1][2]])
-    f = np.array([K[0][0],K[1][1]])
+    c = np.array([K[0][2], K[1][2]])
+    f = np.array([K[0][0], K[1][1]])
 
     obj3D = np.matrix(obj3D)
-    objImg = obj3D/obj3D[:,2]
-    obj_norImgxy = np.array(objImg[:,0:2])
+    objImg = obj3D/obj3D[:, 2]
+    obj_norImgxy = np.array(objImg[:, 0:2])
     objImg = obj_norImgxy*f+c
 
     return objImg
+
 
 def plot2Dplane(keyImg, K, X3D, obj3D):
     """_summary_
@@ -172,28 +178,31 @@ def plot2Dplane(keyImg, K, X3D, obj3D):
 
     h = obj3D.shape[0]
     w = obj3D.shape[1]
-    obj3D = np.reshape(obj3D, (h*w,3))
+    obj3D = np.reshape(obj3D, (h*w, 3))
 
     objImg = obj3Dto2D(obj3D, K)
-    
+
     plt.imshow(keyImg)
     # grid vertex plot
     # plt.scatter(objImg[:,0], objImg[:,1],s=10)
 
     for i in range(h):
-        plt.plot([objImg[w*i][0],objImg[w*(i+1)-1][0]],[objImg[w*i][1],objImg[w*(i+1)-1][1]],color='r', linewidth=1)
+        plt.plot([objImg[w*i][0], objImg[w*(i+1)-1][0]], [objImg[w*i]
+                 [1], objImg[w*(i+1)-1][1]], color='r', linewidth=1)
     for j in range(w):
-        plt.plot([objImg[j][0],objImg[(h-1)*w+j][0]],[objImg[j][1],objImg[(h-1)*w+j][1]],color='r', linewidth=1)
-    
+        plt.plot([objImg[j][0], objImg[(h-1)*w+j][0]], [objImg[j]
+                 [1], objImg[(h-1)*w+j][1]], color='r', linewidth=1)
+
     # plot feature
     XImg = obj3Dto2D(X3D, K)
 
-    plt.scatter(XImg[:,0],XImg[:,1],s=10)
+    plt.scatter(XImg[:, 0], XImg[:, 1], s=10)
     plt.axis("off")
     plt.show()
 
+
 def get_dominant_plane(M, F0, K):
-    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.1)
+    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 1)
     grid3D = make3Dgrid(M.normal_vector, M.X_3D_0, F0, K)
     plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
     plot2Dplane(F0, K, M.X_3D_0, grid3D)
