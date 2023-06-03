@@ -205,13 +205,14 @@ def plot2Dplane(keyImg, K, X3D, grid3D):
         if event.button == 1:  # Check if left mouse button is X2Dref
             x = int(event.xdata)
             y = int(event.ydata)
-            X2Dref.append([x,y])
+            X2Dref.append([x, y])
             print(f"plane.py : clicked pixel coordinates: ({x}, {y})")
 
     cid = plt.gcf().canvas.mpl_connect('button_press_event', onclick)
     plt.show()
 
     return X2Dref
+
 
 def makeCube(X2Dref, plane, K):
 
@@ -234,7 +235,7 @@ def makeCube(X2Dref, plane, K):
 
     k = -plane[3]/(plane[0]*init2D[0] + plane[1]
                    * init2D[1] + plane[2])
-    
+
     init3Dxy = np.array([k*init2D, k*init2D-[0, 5]])
     init3Dz = -(plane[0]*init3Dxy[:, 0]+plane[1]
                 * init3Dxy[:, 1]+plane[3])/plane[2]
@@ -249,19 +250,21 @@ def makeCube(X2Dref, plane, K):
     cube3D = []
     for i in range(X3Dref.shape[0]):
         cube3D_down = [X3Dref[i]-u_grid*length/2-v_grid*length/2,
-        X3Dref[i]-u_grid*length/2+v_grid*length/2,
-        X3Dref[i]+u_grid*length/2+v_grid*length/2,
-        X3Dref[i]+u_grid*length/2-v_grid*length/2]
+                       X3Dref[i]-u_grid*length/2+v_grid*length/2,
+                       X3Dref[i]+u_grid*length/2+v_grid*length/2,
+                       X3Dref[i]+u_grid*length/2-v_grid*length/2]
         cube3D_up = cube3D_down-plane[0:3]*length
         cube3Dall = np.concatenate((cube3D_down, cube3D_up), 0)
         cube3D.append(cube3Dall)
 
     return cube3D
 
+
 def get_plane_cube(M, F0, K):
     M.normal_vector = planeRANSAC(M.X_3D_0, 100, 1)
     grid3D = make3Dgrid(M.normal_vector, M.X_3D_0, F0, K)
-    # plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
+    plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
     X2Dref = plot2Dplane(F0, K, M.X_3D_0, grid3D)
     cube3D = makeCube(X2Dref, M.normal_vector, K)
-    return M, cube3D
+    M.X_3D_ref = cube3D
+    return M

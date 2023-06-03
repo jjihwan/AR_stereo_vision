@@ -32,7 +32,8 @@ def work(video, args):
 
     M = map_init_from_frames(video[0], video[1], args.NNDR_RATIO, C.K)
 
-    M, cube3D = get_plane_cube(M, video[0], C.K)
+    M = get_plane_cube(M, video[0], C.K)
+    # print(cube3D)
 
     for i in range(1, video.shape[0]-1):
         if i == 1:
@@ -41,7 +42,7 @@ def work(video, args):
             FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
         C = tracking(FP, C)
 
-        # plot_cube(M, C)
+        plot_cube(video[i+1], M, C)
 
 
 class Camera:
