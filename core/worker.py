@@ -40,6 +40,7 @@ def work(video, args):
             FP = optical_flow(video[i], video[i+1], M.X_3D_0, C)
         else:
             FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
+
         C = tracking(FP, C)
 
         plot_cube(video[i+1], M, C)
@@ -52,3 +53,4 @@ class Camera:
         self.t = np.array([[-10], [0], [0]])
         Rt = np.concatenate((self.R, self.t), 1)
         self.pose = np.concatenate((Rt, [[0, 0, 0, 1]]), 0)
+        self.motion = np.eye(4)

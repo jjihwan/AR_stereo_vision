@@ -24,7 +24,7 @@ def trackPose(X_2_cur, X_3_prev, X_3_map, C):
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
         pose = motion @ init_pose
-    return pose
+    return pose, motion
 
 
 def get_inputs():
@@ -163,8 +163,8 @@ def tracking(FP, C):
     X_3D_prev = FP.X_3D_prev
     X_2D_cur = FP.X_2D_cur
 
-    C.pose = trackPose(X_2_cur=X_2D_cur, X_3_prev=X_3D_prev,
-                       X_3_map=X_3_map, C=C)
+    C.pose, C.motion = trackPose(X_2_cur=X_2D_cur, X_3_prev=X_3D_prev,
+                                 X_3_map=X_3_map, C=C)
     C.R = C.pose[:3, :3]
     C.t = C.pose[:3, 3]
 
