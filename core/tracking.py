@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import inv, norm
-from map_initialization import map_init
+from map_initialization import map_init_from_path
 from liegroups.numpy import SE3
 
 ######################################################################
@@ -31,7 +31,7 @@ def get_inputs():
     K = np.array([[3.10593801e+03, 0.00000000e+00, 1.53552466e+03],
                   [0.00000000e+00, 3.08841292e+03, 2.03002207e+03],
                   [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
-    _, X_2_prev, X_2_cur, X_3_map = map_init(
+    _, X_2_prev, X_2_cur, X_3_map = map_init_from_path(
         "./data/desk1.jpeg", "./data/desk2.jpeg", 0.7, K)
 
     X_3_prev = X_3_map
