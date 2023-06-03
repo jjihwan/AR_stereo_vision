@@ -18,7 +18,7 @@ def optical_flow(Fn1, Fn2, M, C1):
     FP = FeaturePoints(M)
 
     # Parameters for lucas kanade optical flow
-    lk_params = dict(winSize=(200, 200),
+    lk_params = dict(winSize=(50, 50),
                      maxLevel=2,
                      criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
     Fn1_gray = cv.cvtColor(Fn1, cv.COLOR_RGB2GRAY)

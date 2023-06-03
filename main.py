@@ -16,7 +16,7 @@ def get_video(path_to_video):
     while ret:
         ret, img = V.read()  # read one frame from the 'capture' object; img is (H, W, C)
         if ret:
-            if i == 0 or (i % 15 == 0 and i >= 100):
+            if i == 0 or (i % 5 == 0 and i >= 100):
                 # cv.imwrite(str(i)+'.jpeg',img)
                 img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                 frames.append(img)
