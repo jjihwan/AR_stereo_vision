@@ -12,7 +12,7 @@ def planeRANSAC(X3D, iteration, threshold):
         threshold (int) : max distance between inlier points and dominant plane
         iteration (int) : RANSAC iteration to find dominant plane
     Returns:
-        dom_plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
+        plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
     """
     print("plane.py : Finding the dominat plane...")
 
@@ -35,73 +35,127 @@ def planeRANSAC(X3D, iteration, threshold):
             print("plane.py : dominant plane updated",
                   '(iteration', ii, '/', iteration, ')')
             best_inlier = inlier
-            dom_plane = np.append(normal, d)  # [a,b,c,d] ; ax+by+cz+d = 0
+            plane = np.append(normal, d)  # [a,b,c,d] ; ax+by+cz+d = 0
     print("plane.py : # of inlier points in dominant plane = ", best_inlier)
 
-    return dom_plane
+    return plane
 
 
-def plot_plane(dom_plane, X3D, K):
+def make3Dgrid(plane, X3D, img, K):
     """_summary_
     plot 3D plane with 3D points in world coordinate
     B = (# of mathced points)
     n = (# of grid points manually selected with wi and hi)
     Args:
-        dom_plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
+        plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
         X3D (np.ndarray): B * 3, 3D coordinates relative to second camera
         K (np.ndarray): 3 * 3, intrinsic matrix of camera
     Returns:
-        planeGrid3D (np.ndarray): n * 3, 3D coordinates of vertically grid points in dominant plane
+        grid3D (np.ndarray): h * w * 3, 3D coordinates of vertically grid points in dominant plane
     """
     print("plane.py : 3D Plot the dominat plane...")
 
-    meshx_plane, meshy_plane = np.meshgrid(range(-30, 20), range(-20, 20))
-    meshz_plane = -(dom_plane[0]*meshx_plane+dom_plane[1]
-                    * meshy_plane+dom_plane[3])/dom_plane[2]
+    (imgh,imgw) = img.shape[0:2]
 
-    # test 3D cuboid
-    u0_norImg = -K[0][2]/K[0][0]  # -cx/fx
-    v0_norImg = -K[1][2]/K[1][1]  # -cy/fy
-    # constant multiple to project to dom_plane
-    k = -dom_plane[3]/(dom_plane[0]*u0_norImg+dom_plane[1]
-                       * v0_norImg+dom_plane[2])
-    # (-k*a,-k*b,z) in the dom_plane is the point that projects to image point (0,0)
-    init2pxy = np.array([[k*u0_norImg, k*v0_norImg],
-                        [k*u0_norImg, k*v0_norImg-5]])
-    init2pz = -(dom_plane[0]*init2pxy[:, 0]+dom_plane[1]
-                * init2pxy[:, 1]+dom_plane[3])/dom_plane[2]
-    init2p = np.concatenate((init2pxy, np.expand_dims(init2pz, 1)), 1)
-    u_grid = init2p[0]-init2p[1]
+    c = np.array([K[0][2],K[1][2]])
+    f = np.array([K[0][0],K[1][1]])
+
+    # image (0,0) and (h,w) to normal image
+    vertex_norImg = np.array([[-c[0]/f[0],-c[1]/f[1]],
+                              [(imgw-c[0])/f[0],(imgh-c[1])/f[1]]])
+    # constant multiple to project to plane
+    k = -plane[3]/(plane[0]*vertex_norImg[:,0] + plane[1]*vertex_norImg[:,1] + plane[2])
+
+    # (k*a,k*b,z) in the plane is the point that projects to image vertex point (0,0) and (h,w)
+    vertex3Dxy = (k*vertex_norImg.T).T
+    vertex3Dz = -(plane[0]*vertex3Dxy[:,0]+plane[1] * vertex3Dxy[:,1]+plane[3])/plane[2]
+    vertex3D = np.concatenate((vertex3Dxy, np.expand_dims(vertex3Dz, 1)), 1)
+
+    init3Dxy = np.array([k[0]*vertex_norImg[0,:],k[0]*vertex_norImg[0,:]-[0,5]])
+    init3Dz = -(plane[0]*init3Dxy[:,0]+plane[1]
+                * init3Dxy[:,1]+plane[3])/plane[2]
+    init3D = np.concatenate((init3Dxy, np.expand_dims(init3Dz, 1)), 1)
+
+    u_grid = init3D[0]-init3D[1]
     u_grid = u_grid/np.linalg.norm(u_grid)
-    v_grid = np.cross(u_grid, dom_plane[0:3])
+    v_grid = np.cross(u_grid, plane[0:3])
     v_grid = v_grid/np.linalg.norm(v_grid)
-    planeGrid3D = [init2p[0]]
-    for hi in range(13):
-        for wi in range(18):
-            if wi == 0 and hi == 0:
-                continue  # init2p[0] is already added to palne3Dgrid
-            gridij = [init2p[0]+u_grid*5*hi+v_grid*5*wi]
-            planeGrid3D = np.concatenate((planeGrid3D, gridij))
+    grid3D = [init3D[0]]
+
+    diagvec = vertex3D[1,:]-vertex3D[0,:]
+    diag_proj_ugrid = np.dot(diagvec,u_grid)*u_grid
+    diag_proj_vgrid = np.dot(diagvec,v_grid)*v_grid
+
+    h = int(np.linalg.norm(diag_proj_ugrid)/5)+2
+    w = int(np.linalg.norm(diag_proj_vgrid)/5)+2
+    
+    for hi in range(h):
+        for wi in range(w):
+            if wi==0 and hi==0:
+                continue # init3D[0] is already added to palne3Dgrid
+            gridij = [init3D[0]+u_grid*5*hi+v_grid*5*wi]
+            grid3D = np.concatenate((grid3D, gridij))
+
+    grid3D = grid3D[:,np.newaxis]
+    grid3D = np.reshape(grid3D, (h,w,3))
+
+    return grid3D
+
+
+def plot3Dplane(plane, grid3D, X3D):
+    """_summary_
+    plot 3D plane with 3D points in world coordinate
+    B = (# of mathced points)
+    n = (# of grid points manually selected with wi and hi)
+    Args:
+        plane (np.ndarray): 1 * 4, (a, b, c, d) that represent the plane ax+by+cz+d = 0
+        X3D (np.ndarray): B * 3, 3D coordinates relative to second camera
+        K (np.ndarray): 3 * 3, intrinsic matrix of camera
+    Returns:
+        grid3D (np.ndarray): h * w * 3, 3D coordinates of vertically grid points in dominant plane
+    """
+    print("plane.py : 3D Plot the dominat plane...")    
+
+    h = grid3D.shape[0]
+    w = grid3D.shape[1]
+    grid3D = np.reshape(grid3D, (h*w,3))
+
+    meshx_plane, meshy_plane = np.meshgrid(range(-30, 20), range(-20, 20))
+    meshz_plane = -(plane[0]*meshx_plane+plane[1]
+                    * meshy_plane+plane[3])/plane[2]
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     ax.set_title("XYZ coordinates relative to second camera")
     ax.set_xlabel("x")
-    ax.set_xlim(-20, 20)
+    ax.set_xlim(-40, 40)
     ax.set_ylabel("y")
-    ax.set_ylim(-20, 20)
+    ax.set_ylim(-40, 20)
     ax.set_zlabel("z")
-    ax.set_zlim(0, 50)
-    ax.plot_surface(meshx_plane, meshy_plane, meshz_plane, alpha=0.2)
-    ax.scatter(planeGrid3D[:, 0], planeGrid3D[:, 1],
-               planeGrid3D[:, 2], marker='.', s=10)
-    ax.scatter(X3D[:, 0], X3D[:, 1], X3D[:, 2], marker='o', s=15)
+    ax.set_zlim(0, 100)
+    ax.plot_surface(meshx_plane,meshy_plane,meshz_plane,alpha=0.2)
+    # ax.scatter(grid3D[:,0],grid3D[:,1],grid3D[:,2],marker='.', s=10)
+
+    for i in range(h):
+        ax.plot([grid3D[w*i][0],grid3D[w*(i+1)-1][0]],[grid3D[w*i][1],grid3D[w*(i+1)-1][1]],zs=[grid3D[w*i][2],grid3D[w*(i+1)-1][2]],color='0.5', linewidth=1)
+    for j in range(w):
+        ax.plot([grid3D[j][0],grid3D[(h-1)*w+j][0]],[grid3D[j][1],grid3D[(h-1)*w+j][1]],zs=[grid3D[j][2],grid3D[(h-1)*w+j][2]],color='0.5', linewidth=1)
+    ax.scatter(X3D[:,0], X3D[:,1], X3D[:,2], marker='o', s=15)
     plt.show()
 
-    return planeGrid3D
 
+def obj3Dto2D(obj3D, K):
+    c = np.array([K[0][2],K[1][2]])
+    f = np.array([K[0][0],K[1][1]])
 
-def plane3Dto2D(keyImg, K, X3D, planeGrid3D):
+    obj3D = np.matrix(obj3D)
+    objImg = obj3D/obj3D[:,2]
+    obj_norImgxy = np.array(objImg[:,0:2])
+    objImg = obj_norImgxy*f+c
+
+    return objImg
+
+def plot2Dplane(keyImg, K, X3D, obj3D):
     """_summary_
     plot 3D plane with 3D points in world coordinate
     B = (# of mathced points)
@@ -110,42 +164,37 @@ def plane3Dto2D(keyImg, K, X3D, planeGrid3D):
         keyImg: image that represent the world coordinate
         K (np.ndarray): 3 * 3, intrinsic matrix of camera
         X3D (np.ndarray): B * 3, 3D coordinates relative to second camera
-        planeGrid3D (np.ndarray): n * 3, 3D coordinates of vertically grid points in dominant plane
+        obj3D (np.ndarray): h * w * 3, 3D coordinates of vertically grid points in dominant plane
     Returns:
         None
     """
     print("plane.py : Plot the dominant plane grid in 2D image ...")
 
-    c = np.array([K[0][2], K[1][2]])
-    f = np.array([K[0][0], K[1][1]])
+    h = obj3D.shape[0]
+    w = obj3D.shape[1]
+    obj3D = np.reshape(obj3D, (h*w,3))
 
-    # plot dominant plane grid
-    planeGrid3D = np.matrix(planeGrid3D)
-    planeGrid_Img = planeGrid3D/planeGrid3D[:, 2]
-    planeGrid_norImgxy = np.array(planeGrid_Img[:, 0:2])
-    planeGrid_Img = planeGrid_norImgxy*f+c
-
+    objImg = obj3Dto2D(obj3D, K)
+    
     plt.imshow(keyImg)
-    plt.scatter(planeGrid_Img[:, 0], planeGrid_Img[:, 1], s=10)
+    # grid vertex plot
+    # plt.scatter(objImg[:,0], objImg[:,1],s=10)
 
+    for i in range(h):
+        plt.plot([objImg[w*i][0],objImg[w*(i+1)-1][0]],[objImg[w*i][1],objImg[w*(i+1)-1][1]],color='r', linewidth=1)
+    for j in range(w):
+        plt.plot([objImg[j][0],objImg[(h-1)*w+j][0]],[objImg[j][1],objImg[(h-1)*w+j][1]],color='r', linewidth=1)
+    
     # plot feature
-    X3D = np.matrix(X3D)
-    X3D = X3D/X3D[:, 2]
-    XnorImg = np.array(X3D[:, 0:2])
-    XImg = XnorImg*f+c
+    XImg = obj3Dto2D(X3D, K)
 
-    plt.scatter(XImg[:, 0], XImg[:, 1], s=10)
+    plt.scatter(XImg[:,0],XImg[:,1],s=10)
     plt.axis("off")
     plt.show()
 
-# def detect_plane(X3D, keyimg, K):
-#     dom_plane = planeRANSAC(X3D, 100, 0.05) # X3D, iteration, threshold
-#     planeGrid3D = plot_plane(dom_plane, X3D, K)
-#     plane3Dto2D(keyimg, K, X3D, planeGrid3D)
-
-
 def get_dominant_plane(M, F0, K):
-    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.05)
-    planeGrid3D = plot_plane(M.normal_vector, M.X_3D_0, K)
-    plane3Dto2D(F0, K, M.X_3D_0, planeGrid3D)
+    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.1)
+    grid3D = make3Dgrid(M.normal_vector, M.X_3D_0, F0, K)
+    plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
+    plot2Dplane(F0, K, M.X_3D_0, grid3D)
     return M

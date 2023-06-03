@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 import descriptor
 
-img1 = cv2.imread('/Users/hojjunekim/Downloads/soccer1.JPG')
-img2 = cv2.imread('/Users/hojjunekim/Downloads/soccer2.JPG')
+img1 = cv2.imread('/Users/hojjunekim/Desktop/컴비기/term_Project/2023S_SNU_CV_Project/core/data/all1.jpeg')
+img2 = cv2.imread('/Users/hojjunekim/Desktop/컴비기/term_Project/2023S_SNU_CV_Project/core/data/all2.jpeg')
 gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
@@ -18,7 +18,6 @@ for match in good_matches:
     pt2 = (int(pt2[0]+np.shape(img1)[1]), int(pt2[1]))
     match_img = cv2.line(match_img, pt1, pt2, (0, 255, 0), thickness=3)
 # Display image
-match_img = cv2.resize(match_img, (int(np.shape(match_img)[1]/8),int(np.shape(match_img)[0]/8)))
 cv2.imshow('Matches', match_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
