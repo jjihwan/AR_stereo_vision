@@ -42,7 +42,7 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     estimated_X2D2 = get_img_coordinate(estimated_X2Dn2, C1.K)
 
     # compare = np.concatenate((estimated_X2D2, X2D2.squeeze()), 1)
-    k = 2
+    k = 3
     error = np.linalg.norm(estimated_X2D2 - X2D2.squeeze(), axis=1)
     error = error[:, None]
     avg = error.mean()
