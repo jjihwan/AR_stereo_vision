@@ -88,10 +88,9 @@ def make3Dgrid(plane, X3D, img, K):
 
     h = int(np.linalg.norm(diag_proj_ugrid)/5)+2
     w = int(np.linalg.norm(diag_proj_vgrid)/5)+2
-    print(h,w)
     
-    for hi in range(h): # 14
-        for wi in range(w): # 18
+    for hi in range(h):
+        for wi in range(w):
             if wi==0 and hi==0:
                 continue # init3D[0] is already added to palne3Dgrid
             gridij = [init3D[0]+u_grid*5*hi+v_grid*5*wi]
@@ -194,7 +193,7 @@ def plot2Dplane(keyImg, K, X3D, obj3D):
     plt.show()
 
 def get_dominant_plane(M, F0, K):
-    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.05)
+    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.1)
     grid3D = make3Dgrid(M.normal_vector, M.X_3D_0, F0, K)
     plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
     plot2Dplane(F0, K, M.X_3D_0, grid3D)

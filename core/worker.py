@@ -4,8 +4,7 @@ from core.calibration import calibration
 from core.map_initialization import map_init_from_frames
 from core.plane import get_dominant_plane
 from core.projection import plot2D
-# import calibration
-# import plane
+from core.optical import optical_flow
 # import tracking
 
 
@@ -34,6 +33,9 @@ def work(video, args):
 
     M = get_dominant_plane(M, video[0], C.K)
 
+    for i in range(1,10):
+        FP = optical_flow(video[i], video[i+1], M, C)
+
 
 class Camera:
     def __init__(self, K):
@@ -41,12 +43,4 @@ class Camera:
         self.R = np.eye(3)
         self.t = np.array([[-10], [0], [0]])
         Rt = np.concatenate((self.R, self.t), 1)
-        self.pose = np.concatenate((Rt, np.zeros((1, 4))), 0)
-
-
-class FeaturePoints:
-    def __init__(self):
-        self.X_3D_0 = None
-        self.X_2D_prev = None
-        self.X_3D_prev = None
-        self.X_2D_curr = None
+        self.pose = np.concatenate((Rt, [[0,0,0,1]]), 0)

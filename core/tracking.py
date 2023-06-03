@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import inv, norm
-from map_initialization import map_init
+from core.map_initialization import map_init_from_path
 from liegroups.numpy import SE3
 
 ######################################################################
@@ -31,8 +31,8 @@ def get_inputs():
     K = np.array([[3.10593801e+03, 0.00000000e+00, 1.53552466e+03],
                   [0.00000000e+00, 3.08841292e+03, 2.03002207e+03],
                   [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
-    _, X_2_prev, X_2_cur, X_3_map = map_init(
-        "./data/desk1.jpeg", "./data/desk2.jpeg", 0.7, K)
+    _, X_2_prev, X_2_cur, X_3_map = map_init_from_path(
+        "./data/all1.jpeg", "./data/all2.jpeg", 0.7, K)
 
     X_3_prev = X_3_map
 
@@ -63,6 +63,7 @@ def get_initial_pose():
     mu = np.zeros(6)
     pose = np.eye(4)
     pose[0, 3] = -30
+    pose[3, 3] = 1
     return pose, mu
 
 
@@ -156,9 +157,9 @@ def get_img_normal_Jacobian(K):
     return J_in[None]
 
 
-X_3_map, X_2_prev, X_3_prev, X_2_cur, K = get_inputs()
-pose, mu = get_initial_pose()
-X_3_cur = get_camera_coordinate(pose, X_3_map)
-get_Jacobian(X_3_cur, K)
+# X_3_map, X_2_prev, X_3_prev, X_2_cur, K = get_inputs()
+# pose, mu = get_initial_pose()
+# X_3_cur = get_camera_coordinate(pose, X_3_map)
+# get_Jacobian(X_3_cur, K)
 
-trackPose(X_2_cur, X_3_prev, X_3_map, K)
+# pose = trackPose(X_2_cur, X_3_prev, X_3_map, K)
