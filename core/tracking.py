@@ -162,7 +162,7 @@ def tracking(FP, C):
     X_2D_prev = FP.X_2D_prev
     X_3D_prev = FP.X_3D_prev
     X_2D_cur = FP.X_2D_cur
-    print(X_3_map.shape[0])
+
     C.pose = trackPose(X_2_cur=X_2D_cur, X_3_prev=X_3D_prev,
                        X_3_map=X_3_map, C=C)
     C.R = C.pose[:3, :3]
