@@ -5,7 +5,6 @@ from core.map_initialization import map_init_from_frames
 from core.plane import get_dominant_plane
 from core.projection import plot2D
 from core.optical import optical_flow
-from core.tracking import tracking
 # import tracking
 
 
@@ -36,8 +35,6 @@ def work(video, args):
 
     for i in range(1, video.shape[0]-1):
         FP = optical_flow(video[i], video[i+1], M, C)
-        C = tracking(FP, C)
-        print(C.pose)
 
 
 class Camera:
@@ -46,4 +43,4 @@ class Camera:
         self.R = np.eye(3)
         self.t = np.array([[-10], [0], [0]])
         Rt = np.concatenate((self.R, self.t), 1)
-        self.pose = np.concatenate((Rt, [[0, 0, 0, 1]]), 0)
+        self.pose = np.concatenate((Rt, [[0,0,0,1]]), 0)

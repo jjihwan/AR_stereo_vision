@@ -24,6 +24,7 @@ def trackPose(X_2_cur, X_3_prev, X_3_map, C):
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
         pose = motion @ init_pose
+    print(norm(error))
     return pose
 
 

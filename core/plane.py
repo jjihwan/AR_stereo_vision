@@ -193,7 +193,7 @@ def plot2Dplane(keyImg, K, X3D, obj3D):
     plt.show()
 
 def get_dominant_plane(M, F0, K):
-    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 0.1)
+    M.normal_vector = planeRANSAC(M.X_3D_0, 100, 1)
     grid3D = make3Dgrid(M.normal_vector, M.X_3D_0, F0, K)
     plot3Dplane(M.normal_vector, grid3D, M.X_3D_0)
     plot2Dplane(F0, K, M.X_3D_0, grid3D)
