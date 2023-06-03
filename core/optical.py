@@ -33,9 +33,26 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
 
     X2D1 = np.float32(np.expand_dims(X2D1, 1))
 
+    # (n, 1, 2)
     X2D2, status, err = cv.calcOpticalFlowPyrLK(
         Fn1_gray, Fn2_gray, X2D1, None, **lk_params)
 
+    estimated_X3D2 = get_camera_coordinate(C1.motion, X3D1)
+    estimated_X2Dn2 = get_normal_coordinate(estimated_X3D2)
+    estimated_X2D2 = get_img_coordinate(estimated_X2Dn2, C1.K)
+
+    # compare = np.concatenate((estimated_X2D2, X2D2.squeeze()), 1)
+    k = 2
+    error = np.linalg.norm(estimated_X2D2 - X2D2.squeeze(), axis=1)
+    error = error[:, None]
+    avg = error.mean()
+    std = error.std()
+    is_inlier = np.equal(((avg - k * std) <= error),
+                         (error <= (avg + k * std)))
+
+    status = is_inlier & status
+    # print(np.sum(status))
+    # (n, 1, 3)
     X3D1 = np.expand_dims(X3D1, 1)
     X3D0 = np.expand_dims(X_3D_0, 1)
 
