@@ -41,7 +41,7 @@ def work(video, args):
             FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
         C = tracking(FP, C)
 
-        # plot_cube(M, C)
+        plot_cube(video[i+1], M, C)
 
 
 class Camera:
