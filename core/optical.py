@@ -50,31 +50,31 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     FP.X_3D_prev = X3D1good
     FP.X_2D_cur = X2D2good
 
-    Fn1_BGR = cv.cvtColor(Fn1, cv.COLOR_RGB2BGR)
-    color = np.random.randint(0, 255, (200, 3))
-    mask = np.zeros_like(Fn1)
-    for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
-        a, b = new.ravel()
-        c, d = old.ravel()
-        mask = cv.line(mask, (int(a), int(b)),
-                       (int(c), int(d)), color[i].tolist(), 2)
-        frame = cv.circle(Fn1_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
+    # Fn1_BGR = cv.cvtColor(Fn1, cv.COLOR_RGB2BGR)
+    # color = np.random.randint(0, 255, (200, 3))
+    # mask = np.zeros_like(Fn1)
+    # for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
+    #     a, b = new.ravel()
+    #     c, d = old.ravel()
+    #     mask = cv.line(mask, (int(a), int(b)),
+    #                    (int(c), int(d)), color[i].tolist(), 2)
+    #     frame = cv.circle(Fn1_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
     # img1 = cv.add(Fn1_BGR, mask)
     # cv.imshow('frame_prev', img1)
     # cv.waitKey(0)
 
-    Fn2_BGR = cv.cvtColor(Fn2, cv.COLOR_RGB2BGR)
-    color = np.random.randint(0, 255, (200, 3))
-    mask = np.zeros_like(Fn2)
-    for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
-        a, b = new.ravel()
-        c, d = old.ravel()
-        mask = cv.line(mask, (int(a), int(b)),
-                       (int(c), int(d)), color[i].tolist(), 2)
-        frame = cv.circle(Fn2_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
-    img = cv.add(Fn2_BGR, mask)
-    cv.imshow('frame_cur', img)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # Fn2_BGR = cv.cvtColor(Fn2, cv.COLOR_RGB2BGR)
+    # color = np.random.randint(0, 255, (200, 3))
+    # mask = np.zeros_like(Fn2)
+    # for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
+    #     a, b = new.ravel()
+    #     c, d = old.ravel()
+    #     mask = cv.line(mask, (int(a), int(b)),
+    #                    (int(c), int(d)), color[i].tolist(), 2)
+    #     frame = cv.circle(Fn2_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
+    # img = cv.add(Fn2_BGR, mask)
+    # cv.imshow('frame_cur', img)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
     return FP

@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import inv, norm
+from numpy.linalg import pinv, norm
 from core.map_initialization import map_init_from_path
 from liegroups.numpy import SE3
 
@@ -20,7 +20,7 @@ def trackPose(X_2_cur, X_3_prev, X_3_map, C):
         J = get_Jacobian(X_3_cur, C.K)
 
         error = compute_error(X_3_cur, X_2_cur, C.K)
-        delta = - (inv(J.T@J)@J.T @ error).squeeze()
+        delta = - (pinv(J.T@J)@J.T @ error).squeeze()
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
         pose = motion @ init_pose
