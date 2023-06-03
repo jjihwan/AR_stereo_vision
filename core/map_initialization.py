@@ -9,7 +9,7 @@ class Map:
         self.X_3D_0 = X_3D_0
         self.normal_vector = np.zeros((4, 1))
         self.X_2D_ref = np.zeros((2, 1))
-        self.X_3D_ref = np.zeros((3, 1))
+        self.X_3D_ref = np.zeros((3, 8))
 
 
 def load_images(path1="./data/desk1.png", path2="./data/desk2.png"):

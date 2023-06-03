@@ -6,16 +6,16 @@ from core.tracking import get_camera_coordinate, get_normal_coordinate, get_img_
 
 
 class FeaturePoints:
-    def __init__(self, M):
-        self.X_3D_0 = M.X_3D_0
+    def __init__(self, X_3D_0):
+        self.X_3D_0 = X_3D_0
         self.X_2D_prev = None
         self.X_3D_prev = None
         self.X_2D_cur = None
 
 
-def optical_flow(Fn1, Fn2, M, C1):
+def optical_flow(Fn1, Fn2, X_3D_0, C1):
 
-    FP = FeaturePoints(M)
+    FP = FeaturePoints(X_3D_0)
 
     # Parameters for lucas kanade optical flow
     lk_params = dict(winSize=(50, 50),
@@ -36,12 +36,18 @@ def optical_flow(Fn1, Fn2, M, C1):
     X2D2, status, err = cv.calcOpticalFlowPyrLK(
         Fn1_gray, Fn2_gray, X2D1, None, **lk_params)
 
+    X3D1 = np.expand_dims(X3D1, 1)
+    X3D0 = np.expand_dims(X_3D_0, 1)
+
     if X2D2 is not None:
         X2D2good = X2D2[status == 1]
         X2D1good = X2D1[status == 1]
+        X3D1good = X3D1[status == 1]
+        X3D0good = X3D0[status == 1]
 
+    FP.X_3D_0 = X3D0good
     FP.X_2D_prev = X2D1good
-    FP.X_3D_prev = X3D1
+    FP.X_3D_prev = X3D1good
     FP.X_2D_cur = X2D2good
 
     Fn1_BGR = cv.cvtColor(Fn1, cv.COLOR_RGB2BGR)

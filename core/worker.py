@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from core.calibration import calibration
 from core.map_initialization import map_init_from_frames
 from core.plane import get_dominant_plane
-from core.projection import plot2D
+from core.projection import plot_cube
 from core.optical import optical_flow
 from core.tracking import tracking
 # import tracking
@@ -35,9 +35,13 @@ def work(video, args):
     M = get_dominant_plane(M, video[0], C.K)
 
     for i in range(1, video.shape[0]-1):
-        FP = optical_flow(video[i], video[i+1], M, C)
+        if i == 1:
+            FP = optical_flow(video[i], video[i+1], M.X_3D_0, C)
+        else:
+            FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
         C = tracking(FP, C)
-        print(C.pose)
+
+        # plot_cube(M, C)
 
 
 class Camera:
