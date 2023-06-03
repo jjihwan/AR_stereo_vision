@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from core.calibration import calibration
 from core.map_initialization import map_init_from_frames
-from core.plane import get_dominant_plane
+from core.plane import get_plane_cube
 from core.projection import plot_cube
 from core.optical import optical_flow
 from core.tracking import tracking
@@ -32,7 +32,7 @@ def work(video, args):
 
     M = map_init_from_frames(video[0], video[1], args.NNDR_RATIO, C.K)
 
-    M = get_dominant_plane(M, video[0], C.K)
+    M, cube3D = get_plane_cube(M, video[0], C.K)
 
     for i in range(1, video.shape[0]-1):
         if i == 1:
