@@ -10,20 +10,20 @@ from liegroups.numpy import SE3
 ######################################################################
 
 
-def trackPose(X_2_cur, X_3_prev, X_3_map, K):
-    init_pose, mu = get_initial_pose()
+def trackPose(X_2_cur, X_3_prev, X_3_map, C):
+    # init_pose, mu = get_initial_pose()
+    init_pose = C.pose
+    mu = np.zeros(6)
     pose = init_pose
     for s in range(10):
         X_3_cur = get_camera_coordinate(pose, X_3_map)
-        J = get_Jacobian(X_3_cur, K)
+        J = get_Jacobian(X_3_cur, C.K)
 
-        error = compute_error(X_3_cur, X_2_cur, K)
+        error = compute_error(X_3_cur, X_2_cur, C.K)
         delta = - (inv(J.T@J)@J.T @ error).squeeze()
         mu = mu + delta
         motion = SE3.exp(mu).as_matrix()
         pose = motion @ init_pose
-        print(norm(error))
-        print(pose)
     return pose
 
 
@@ -157,9 +157,15 @@ def get_img_normal_Jacobian(K):
     return J_in[None]
 
 
-# X_3_map, X_2_prev, X_3_prev, X_2_cur, K = get_inputs()
-# pose, mu = get_initial_pose()
-# X_3_cur = get_camera_coordinate(pose, X_3_map)
-# get_Jacobian(X_3_cur, K)
+def tracking(FP, C):
+    X_3_map = FP.X_3D_0
+    X_2D_prev = FP.X_2D_prev
+    X_3D_prev = FP.X_3D_prev
+    X_2D_cur = FP.X_2D_cur
 
-# pose = trackPose(X_2_cur, X_3_prev, X_3_map, K)
+    C.pose = trackPose(X_2_cur=X_2D_cur, X_3_prev=X_3D_prev,
+                       X_3_map=X_3_map, C=C)
+    C.R = C.pose[:3, :3]
+    C.t = C.pose[:3, 3]
+
+    return C
