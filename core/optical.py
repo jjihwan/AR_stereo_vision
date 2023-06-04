@@ -90,6 +90,7 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     #                    (int(c), int(d)), color[i].tolist(), 2)
     #     frame = cv.circle(Fn2_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
     # img = cv.add(Fn2_BGR, mask)
+    # print('optical.py : # of good points',X2D2good.shape[0])
     # cv.imshow('frame_cur', img)
     # cv.waitKey(0)
     # cv.destroyAllWindows()

@@ -201,6 +201,7 @@ def plot2Dplane(keyImg, K, X3D, grid3D):
 
     X2Dref = []
 
+    print("plane.py : click the reference points to place the cubes...")
     def onclick(event):
         if event.button == 1:  # Check if left mouse button is X2Dref
             x = int(event.xdata)

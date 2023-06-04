@@ -37,8 +37,8 @@ def plot_cube(img, M, C):
 
     img = cv.cvtColor(img, cv.COLOR_RGB2BGR) 
 
-    # cv.imshow("Cube", img)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    cv.imshow("Cube", img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
     return img
