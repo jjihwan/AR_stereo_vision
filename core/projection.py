@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from core.tracking import get_camera_coordinate
 
 
-def plot_cube(img, M, C):
+def plot_cube(img, M, C, dev):
     img1 = img.copy()
     maskup = np.zeros_like(img1)
     maskdown = np.zeros_like(img1)
@@ -36,8 +36,9 @@ def plot_cube(img, M, C):
 
     img1 = cv.cvtColor(img1, cv.COLOR_RGB2BGR)
 
-    cv.imshow("Cube", img)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    if dev == True:
+        cv.imshow("Cube", img1)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
 
     return img1

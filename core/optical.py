@@ -13,7 +13,7 @@ class FeaturePoints:
         self.X_2D_cur = None
 
 
-def optical_flow(Fn1, Fn2, X_3D_0, C1):
+def optical_flow(Fn1, Fn2, X_3D_0, C1, dev):
 
     FP = FeaturePoints(X_3D_0)
 
@@ -80,20 +80,20 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     # img1 = cv.add(Fn1_BGR, mask)
     # cv.imshow('frame_prev', img1)
     # cv.waitKey(0)
-
-    # Fn2_BGR = cv.cvtColor(Fn2, cv.COLOR_RGB2BGR)
-    # color = np.random.randint(0, 255, (5000, 3))
-    # mask = np.zeros_like(Fn2)
-    # for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
-    #     a, b = new.ravel()
-    #     c, d = old.ravel()
-    #     mask = cv.line(mask, (int(a), int(b)),
-    #                    (int(c), int(d)), color[i].tolist(), 2)
-    #     frame = cv.circle(Fn2_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
-    # img = cv.add(Fn2_BGR, mask)
-    # print('optical.py : # of good points',X2D2good.shape[0])
-    # cv.imshow('frame_cur', img)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    if dev == True:
+        Fn2_BGR = cv.cvtColor(Fn2, cv.COLOR_RGB2BGR)
+        color = np.random.randint(0, 255, (5000, 3))
+        mask = np.zeros_like(Fn2)
+        for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
+            a, b = new.ravel()
+            c, d = old.ravel()
+            mask = cv.line(mask, (int(a), int(b)),
+                        (int(c), int(d)), color[i].tolist(), 2)
+            frame = cv.circle(Fn2_BGR, (int(a), int(b)), 5, color[i].tolist(), -1)
+        img = cv.add(Fn2_BGR, mask)
+        cv.imshow('frame_cur', img)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+    print('optical.py : # of good points',X2D2good.shape[0])
 
     return FP

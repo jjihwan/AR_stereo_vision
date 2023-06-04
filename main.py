@@ -16,7 +16,7 @@ def get_video(path_to_video):
     while ret:
         ret, img = V.read()  # read one frame from the 'capture' object; img is (H, W, C)
         if ret:
-            if i == 0 or (i % 1 == 0 and i >= 100):
+            if i == 0 or (i % 1 == 0 and i >= 120):
                 # cv.imwrite(str(i)+'.jpeg',img)
                 img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                 frames.append(img)
@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         help="Threshold for Nearest Neighbor Distance Ratio")
     parser.add_argument("--calibration", "-c", type=bool, default=False,
                         const=True, nargs='?', help="Do you want to calibrate your new camera?")
+    parser.add_argument("--dev", "-d", type=bool, default=False,
+                        const=True, nargs='?', help="Are you in develop mode?")
     args = parser.parse_args()
 
     video = get_video(args.video)

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from core.calibration import calibration
 from core.map_initialization import map_init_from_frames, map_reconstruction_from_frames
 from core.plane import get_plane_cube
@@ -32,20 +33,27 @@ def work(video, args):
     video_frames = []
 
     for i in range(1, video.shape[0]-1):
+        start = time.time()
         if i == 1:
-            FP = optical_flow(video[i], video[i+1], M.X_3D_0, C)
+            FP = optical_flow(video[i], video[i+1], M.X_3D_0, C, args.dev)
+            Nfeat0 = FP.X_3D_0.shape[0]
 
         else:
-            FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
-
+            FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C, args.dev)
+        Nfeat = FP.X_3D_0.shape[0]
         # print(FP.X_3D_0.shape)
 
         C = tracking(FP, C)
-        if i % 50 == 0:
+
+        if Nfeat / Nfeat0 < 0.5:
             FP = map_reconstruction_from_frames(
                 video[i], video[i+1], args.NNDR_RATIO, C, FP)
+            Nfeat0 = FP.X_3D_0.shape[0]
+        img = plot_cube(video[i+1], M, C, args.dev)
+        
+        end = time.time()
+        print(f"{end - start:.5f} sec")
 
-        img = plot_cube(video[i+1], M, C)
         video_frames.append(img)
     make_video(video_frames)
     print('worker.py : video frames generated!')
