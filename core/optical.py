@@ -41,14 +41,15 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     estimated_X2Dn2 = get_normal_coordinate(estimated_X3D2)
     estimated_X2D2 = get_img_coordinate(estimated_X2Dn2, C1.K)
 
-    # compare = np.concatenate((estimated_X2D2, X2D2.squeeze()), 1)
-    k = 3
+    k = 2.5
     error = np.linalg.norm(estimated_X2D2 - X2D2.squeeze(), axis=1)
     error = error[:, None]
     avg = error.mean()
     std = error.std()
     is_inlier = np.equal(((avg - k * std) <= error),
                          (error <= (avg + k * std)))
+    # print(is_inlier.shape)
+    is_inlier = np.logical_or(is_inlier, error <= 5)
 
     status = is_inlier & status
     # print(np.sum(status))
@@ -81,7 +82,7 @@ def optical_flow(Fn1, Fn2, X_3D_0, C1):
     # cv.waitKey(0)
 
     # Fn2_BGR = cv.cvtColor(Fn2, cv.COLOR_RGB2BGR)
-    # color = np.random.randint(0, 255, (200, 3))
+    # color = np.random.randint(0, 255, (5000, 3))
     # mask = np.zeros_like(Fn2)
     # for i, (new, old) in enumerate(zip(X2D2good, X2D1good)):
     #     a, b = new.ravel()
