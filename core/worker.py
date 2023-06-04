@@ -33,7 +33,7 @@ def work(video, args):
     video_frames = []
 
     for i in range(1, video.shape[0]-1):
-        start = time.time()
+        # start = time.time()
         if i == 1:
             FP = optical_flow(video[i], video[i+1], M.X_3D_0, C, args.dev)
             Nfeat0 = FP.X_3D_0.shape[0]
@@ -51,8 +51,8 @@ def work(video, args):
             Nfeat0 = FP.X_3D_0.shape[0]
         img = plot_cube(video[i+1], M, C, args.dev)
         
-        end = time.time()
-        print(f"{end - start:.5f} sec")
+        # end = time.time()
+        # print(f"{end - start:.5f} sec")
 
         video_frames.append(img)
     make_video(video_frames)
