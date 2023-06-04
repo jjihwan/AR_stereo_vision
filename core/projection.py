@@ -5,8 +5,9 @@ from core.tracking import get_camera_coordinate
 
 
 def plot_cube(img, M, C):
-    maskup = np.zeros_like(img)
-    maskdown = np.zeros_like(img)
+    img1 = img.copy()
+    maskup = np.zeros_like(img1)
+    maskdown = np.zeros_like(img1)
     for i, vertices_3D_ref in enumerate(M.X_3D_ref):
 
         vertices_3D = get_camera_coordinate(C.pose, vertices_3D_ref)
@@ -21,24 +22,22 @@ def plot_cube(img, M, C):
             [0, 4], [1, 5], [2, 6], [3, 7]   # Connecting lines
         ])
 
-        cube_down = np.array(vertices,dtype=np.int32)[0:4]
-        cube_up = np.array(vertices,dtype=np.int32)[4:8]
+        cube_down = np.array(vertices, dtype=np.int32)[0:4]
+        cube_up = np.array(vertices, dtype=np.int32)[4:8]
 
-        cv.fillPoly(img, [cube_down], (0,50,0))
-        # img = cv.addWeighted(img, 1, maskdown, 1, 0)
+        cv.fillPoly(img1, [cube_down], (0, 50, 0))
 
         for edge in edges:
             point1 = vertices[edge[0]].astype(int)
             point2 = vertices[edge[1]].astype(int)
-            cv.line(img, tuple(point1), tuple(point2), (0, 255, 0), 2)
-        
-        cv.fillPoly(img, [cube_up], (0,150,0))
-        # img = cv.addWeighted(img, 1, maskup, 0.1, 0)
+            cv.line(img1, tuple(point1), tuple(point2), (0, 255, 0), 2)
 
-    img = cv.cvtColor(img, cv.COLOR_RGB2BGR) 
+        cv.fillPoly(img1, [cube_up], (0, 150, 0))
+
+    img1 = cv.cvtColor(img1, cv.COLOR_RGB2BGR)
 
     cv.imshow("Cube", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
-    return img
+    return img1

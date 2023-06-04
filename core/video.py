@@ -1,13 +1,16 @@
 import numpy as np
 import cv2 as cv
 
+
 def make_video(images):
     print('video.py : making video file...')
-    output_video_path = 'output_video.mp4'
+    output_video_path = './core/results/output_video.mp4'
     height = images[0].shape[0]
     width = images[0].shape[1]
-    fourcc = cv.VideoWriter_fourcc(*'mp4v')  # You can choose the desired codec (e.g., 'XVID', 'MJPG', 'DIVX')
-    output_video = cv.VideoWriter(output_video_path, fourcc, 10.0, (width, height))
+    # You can choose the desired codec (e.g., 'XVID', 'MJPG', 'DIVX')
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')
+    output_video = cv.VideoWriter(
+        output_video_path, fourcc, 60.0, (width, height))
 
     # Iterate over the images in the directory
     for img in images:

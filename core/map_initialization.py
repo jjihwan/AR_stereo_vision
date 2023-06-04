@@ -1,7 +1,7 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.linalg import svd
+from numpy.linalg import svd, pinv, norm
 
 
 class Map:
@@ -31,7 +31,7 @@ def load_images(path1="./data/desk1.png", path2="./data/desk2.png"):
     return img1, img2
 
 
-def get_matching(img1, img2, NNDR_RATIO=0.7):
+def get_matching(img1, img2, NNDR_RATIO=0.7, C=None, recons=False):
     """_summary_
     Get matching points in image 1 and 2 using ORB feature detection & Nearest Neighbor Distance Ratio method
     Args:
@@ -40,12 +40,12 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
 
     Returns:
         X1 (np.ndarray): (# of mathced points) * 2, Matched points (x, y)s in first image
-        X2 (np.ndarray): (# of mathced points) * 2, Matched points (x, y)s in second image 
+        X2 (np.ndarray): (# of mathced points) * 2, Matched points (x, y)s in second image
     """
     MAX_TRANSLATION_RATIO = 20
     print("map_initialization.py : Mathcing the ORB features using NNDR RATIO =",
           NNDR_RATIO, "...")
-    print("map_initialization.py : If you want to find more matching points, increase the ratio")
+    print("map_initialization.py : Map reconstructing ...")
 
     X = img1.shape[1]
 
@@ -66,13 +66,11 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     for m in matches:
         if m[0].distance < NNDR_RATIO * m[1].distance:
             # Find on right window
-            if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]:
-                if abs(kp1[m[0].queryIdx].pt[1] - kp2[m[0].trainIdx].pt[1]) < X/MAX_TRANSLATION_RATIO:
+            if recons:
+                x1 = np.array(kp1[m[0].queryIdx].pt)
+                x2 = np.array(kp2[m[0].trainIdx].pt)
+                if norm(x1-x2) < 200:
                     good_mathches.append(m[0])
-
-                    x1 = np.array(kp1[m[0].queryIdx].pt)
-                    x2 = np.array(kp2[m[0].trainIdx].pt)
-
                     x1 = x1[None, :]
                     x2 = x2[None, :]
 
@@ -85,6 +83,26 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
 
                     good_kp1s.append(kp1[m[0].queryIdx])
                     good_kp2s.append(kp2[m[0].trainIdx])
+            else:
+                if kp1[m[0].queryIdx].pt[0] > kp2[m[0].trainIdx].pt[0]:
+                    if abs(kp1[m[0].queryIdx].pt[1] - kp2[m[0].trainIdx].pt[1]) < X/MAX_TRANSLATION_RATIO:
+                        good_mathches.append(m[0])
+
+                        x1 = np.array(kp1[m[0].queryIdx].pt)
+                        x2 = np.array(kp2[m[0].trainIdx].pt)
+
+                        x1 = x1[None, :]
+                        x2 = x2[None, :]
+
+                        if len(good_mathches) == 1:
+                            X1 = x1
+                            X2 = x2
+                        else:
+                            X1 = np.concatenate((X1, x1), axis=0)
+                            X2 = np.concatenate((X2, x2), axis=0)
+
+                        good_kp1s.append(kp1[m[0].queryIdx])
+                        good_kp2s.append(kp2[m[0].trainIdx])
 
     print("map_initialization.py : Total ", len(
         good_mathches), "points are matched!!!")
@@ -99,8 +117,7 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     # img1_ = cv.cvtColor(img1_, cv.COLOR_BGR2RGB)
     # img2_ = cv.cvtColor(img2_, cv.COLOR_BGR2RGB)
 
-    # res_ = cv.cvtColor(res, cv.COLOR_BGR2RGB)
-    # plt.imshow(res_)
+    # plt.imshow(res)
     # plt.axis("off")
     # plt.show()
     # plt.figure(figsize=(14, 8))
@@ -115,9 +132,9 @@ def get_matching(img1, img2, NNDR_RATIO=0.7):
     return X1, X2
 
 
-def get3Dfrom2D(X1, X2, K):
+def get3Dfrom2D(X1, X2, K, C=None, recons=False):
     """_summary_
-    Find 3D coordinates on second image from matching points
+    Find 3D coordinates on first image from matching points
     B = (# of mathced points)
     Args:
         X1 (np.ndarray): B * 2, Matched points (x, y)s in first image
@@ -133,9 +150,12 @@ def get3Dfrom2D(X1, X2, K):
     X2_norImg = (X2-c)/f
 
     B = X1.shape[0]
-    R = np.eye(3)
-    t = np.array([[-10], [0], [0]])
-    P = np.concatenate((R, t), axis=1)
+    if recons:
+        P = C.motion
+    else:
+        R = np.eye(3)
+        t = np.array([[-10], [0], [0]])
+        P = np.concatenate((R, t), axis=1)
 
     A = np.zeros((B, 4, 4))
 
@@ -160,15 +180,15 @@ def get3Dfrom2D(X1, X2, K):
     # recons = X3D[:, :2]/X3D[:, [2]]*f+c
     # idx = recons[:, 0].argsort()
     # recons1 = recons[idx, :]
-    # X2_1 = X2[X2[:, 0].argsort(), :]
-    # print(np.concatenate((recons1, X2_1), axis=1))
+    # X1_1 = X1[X1[:, 0].argsort(), :]
+    # print(np.concatenate((recons1, X1_1), axis=1))
 
     # Drawing XYZ plot of X3D
     # To see the results, uncomment the following code
 
     # fig = plt.figure(figsize=(10, 10))
     # ax = fig.add_subplot(111, projection="3d")
-    # ax.set_title("XYZ coordinates relative to second camera")
+    # ax.set_title("XYZ coordinates relative to first camera")
     # ax.set_xlabel("x")
     # # ax.set_xlim(0, 50)
     # ax.set_ylabel("y")
@@ -198,3 +218,19 @@ def map_init_from_frames(F1, F2, NNDR_RATIO, K):
     M = Map(X3D)
 
     return M
+
+
+def map_reconstruction_from_frames(F1, F2, NNDR_RATIO, C, FP):
+    X1, X2 = get_matching(F1, F2, NNDR_RATIO, C, True)
+
+    X_3D_i = get3Dfrom2D(X1, X2, C.K, C, True)
+
+    X_3D_i_h = np.concatenate((X_3D_i, np.ones((X_3D_i.shape[0], 1))), 1)
+
+    X_3D_i_to_0_h = X_3D_i_h @ C.motion.T @ pinv(C.pose).T
+    X_3D_i_to_0 = X_3D_i_to_0_h[:, :3] / X_3D_i_to_0_h[:, [3]]
+
+    FP.X_3D_0 = np.concatenate(
+        (FP.X_3D_0, X_3D_i_to_0), 0)
+
+    return FP

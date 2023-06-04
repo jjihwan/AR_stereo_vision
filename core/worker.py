@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from core.calibration import calibration
-from core.map_initialization import map_init_from_frames
+from core.map_initialization import map_init_from_frames, map_reconstruction_from_frames
 from core.plane import get_plane_cube
 from core.projection import plot_cube
 from core.optical import optical_flow
 from core.tracking import tracking
 from core.video import make_video
+
 
 def work(video, args):
     print("worker.py : Start working!")
@@ -27,21 +28,28 @@ def work(video, args):
     M = get_plane_cube(M, video[0], C.K)
     # print(cube3D)
 
-    print('worker.py : making video frames...')
+    print('worker.py : video frames generating...')
     video_frames = []
+
     for i in range(1, video.shape[0]-1):
         if i == 1:
             FP = optical_flow(video[i], video[i+1], M.X_3D_0, C)
+
         else:
             FP = optical_flow(video[i], video[i+1], FP.X_3D_0, C)
 
+        # print(FP.X_3D_0.shape)
+
         C = tracking(FP, C)
+        if i % 50 == 0:
+            FP = map_reconstruction_from_frames(
+                video[i], video[i+1], args.NNDR_RATIO, C, FP)
 
         img = plot_cube(video[i+1], M, C)
         video_frames.append(img)
-    print('worker.py : video frames generated')
     make_video(video_frames)
-    
+    print('worker.py : video frames generated!')
+
 
 class Camera:
     def __init__(self, K):
