@@ -18,6 +18,15 @@ cd liegroups
 pip install .
 cd ..
 ```
+If conda doesn't work, try :
+```bash
+conda create -n "happy"
+conda activate happy
+pip install numpy opencv-python matplotlib
+cd liegroups
+pip install .
+cd ..
+```
 and then,
 ```bash
 python main.py
