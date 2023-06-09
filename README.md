@@ -11,6 +11,7 @@ hojjunekim@snu.ac.kr
 ## How to use
 ```bash
 git clone
+cd 2023S_SNU_CV_Project
 conda env create -f "environment.yaml"
 conda activate cvproject
 cd liegroups
