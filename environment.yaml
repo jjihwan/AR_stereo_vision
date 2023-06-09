@@ -1,0 +1,36 @@
+name: cvproject
+channels:
+  - conda-forge
+dependencies:
+  - bzip2=1.0.8=h3422bc3_4
+  - ca-certificates=2023.5.7=hf0a4a13_0
+  - libffi=3.4.2=h3422bc3_5
+  - libsqlite=3.42.0=hb31c410_0
+  - libzlib=1.2.13=h03a7124_4
+  - ncurses=6.4=h7ea286d_0
+  - openssl=3.1.1=h53f4e23_1
+  - pip=23.1.2=pyhd8ed1ab_0
+  - python=3.9.16=hea58f1e_0_cpython
+  - readline=8.2=h92ec313_1
+  - setuptools=67.7.2=pyhd8ed1ab_0
+  - tk=8.6.12=he1e0b03_0
+  - tzdata=2023c=h71feb2d_0
+  - wheel=0.40.0=pyhd8ed1ab_0
+  - xz=5.2.6=h57fd34a_0
+  - pip:
+      - contourpy==1.0.7
+      - cycler==0.11.0
+      - fonttools==4.39.4
+      - future==0.18.3
+      - importlib-resources==5.12.0
+      - kiwisolver==1.4.4
+      - matplotlib==3.7.1
+      - numpy==1.24.3
+      - opencv-python==4.7.0.72
+      - packaging==23.1
+      - pillow==9.5.0
+      - pyparsing==3.0.9
+      - python-dateutil==2.8.2
+      - six==1.16.0
+      - zipp==3.15.0
+prefix: /Users/jihwan/miniforge3/envs/cvproject
