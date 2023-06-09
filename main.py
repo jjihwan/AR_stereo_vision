@@ -30,11 +30,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--video", "-v", type=str, default="./core/data/short.MOV",
-                        help="Directory for video")
+                        help="Directory for input video")
     parser.add_argument("--img1", "-i1",  type=str, default="./core/data/desk1.jpeg",
                         help="Directory of first image for map initialization")
     parser.add_argument("--img2", "-i2",  type=str, default="./core/data/desk2.jpeg",
                         help="Directory of second image for map initialization")
+    parser.add_argument("--output_path", "-o",  type=str, default="./core/results/output_video.mp4",
+                        help="Directory for output video")
     parser.add_argument("--NNDR_RATIO", "-nndr",  type=float, default=0.7,
                         help="Threshold for Nearest Neighbor Distance Ratio")
     parser.add_argument("--calibration", "-c", type=bool, default=False,

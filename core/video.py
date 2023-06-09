@@ -2,9 +2,9 @@ import numpy as np
 import cv2 as cv
 
 
-def make_video(images):
+def make_video(images, path="./core/results/output_video.mp4"):
     print('video.py : making video file...')
-    output_video_path = './core/results/output_video.mp4'
+    output_video_path = path
     height = images[0].shape[0]
     width = images[0].shape[1]
     # You can choose the desired codec (e.g., 'XVID', 'MJPG', 'DIVX')

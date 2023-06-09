@@ -55,7 +55,7 @@ def work(video, args):
         # print(f"{end - start:.5f} sec")
 
         video_frames.append(img)
-    make_video(video_frames)
+    make_video(video_frames, args.output_path)
     print('worker.py : video frames generated!')
 
 

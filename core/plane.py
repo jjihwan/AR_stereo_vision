@@ -198,7 +198,7 @@ def plot2Dplane(keyImg, K, X3D, grid3D):
 
     plt.scatter(X2D0[:, 0], X2D0[:, 1], s=10)
     plt.axis("off")
-
+    plt.title("Select some points where you want to display cubes")
     X2Dref = []
 
     print("plane.py : click the reference points to place the cubes...")
