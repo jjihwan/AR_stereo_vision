@@ -1,6 +1,8 @@
 # Display Virtual Cubes on My Desk!!!
 ### : 3D Reconstruction and AR via Stereo Vision on Videos  
 
+<img src="https://user-images.githubusercontent.com/63445348/244982569-bcf3788d-f040-4e94-acfc-66c59118c0ed.gif">
+
 2023 Spring SNU Computer Vision Project by
 
 Jihwan Kim
